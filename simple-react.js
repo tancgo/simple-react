@@ -1,14 +1,22 @@
 class ElementWrapper {
-  constructor(type) {
-    this.root = document.createElement(type);
+  constructor(tag, attributes, children) {
+    this.root = document.createElement(tag);
+
+    for (const name in attributes) {
+      if (name === "className") {
+        this.root.setAttribute("class", attributes[name]);
+      } else {
+        this.root.setAttribute(name, attributes[name]);
+      }
+    }
+
+    for (const child of children) {
+      this.root.appendChild(child.getDOM());
+    }
   }
 
-  setAttribute(name, value) {
-    this.root.setAttribute(name, value);
-  }
-
-  appendChild(component) {
-    this.root.appendChild(component.root);
+  getDOM() {
+    return this.root;
   }
 }
 
@@ -16,63 +24,53 @@ class TextWrapper {
   constructor(content) {
     this.root = document.createTextNode(content);
   }
+  getDOM() {
+    return this.root;
+  }
 }
 
 export class Component {
-  constructor() {
-    this.props = Object.create(null);
-    this.children = [];
-    this._root = null;
+  constructor(attributes, children) {
+    this.attributes = attributes;
+    this.children = children;
   }
 
-  setAttribute(name, value) {
-    this.props[name] = value;
-  }
-
-  appendChild(component) {
-    this.children.push(component);
-  }
-
-  get root() {
-    if (!this._root) {
-      this._root = this.render().root;
-    }
-    return this._root;
+  getDOM() {
+    return this.render().getDOM();
   }
 }
 
-export const createElement = (type, attributes, ...children) => {
-  let e;
-  if (typeof type === "string") {
-    e = new ElementWrapper(type);
-  } else {
-    e = new type;
-  }
+export const React = {
+  createElement: (tag, attributes, ...children) => {
+    console.log(tag, attributes, children);
+    let element;
 
-  for (const key in attributes) {
-    e.setAttribute(key, attributes[key]);
-  }
+    let result = [];
 
-  const insertChildren = (children) => {
-    for (const child of children) {
-      if (typeof child === "string") {
-        child = new TextWrapper(child);
+    const visit = (children) => {
+      for (const child of children) {
+        if (typeof child === "string") {
+          // document.createTextNode(child)
+          result.push(new TextWrapper(child));
+        } else if (typeof child === "number") {
+          result.push(new TextWrapper(child.toString()));
+        } else if (typeof child === "object" && child instanceof Array) {
+          visit(child);
+        } else {
+          result.push(child);
+        }
       }
+    };
 
-      if (typeof child === "object" && child instanceof Array) {
-        insertChildren(child)
-      } else {
-        e.appendChild(child);
-      }
-      
+    visit(children);
+
+    if (typeof tag === "string") {
+      // e =  document.createElement(tag)
+      element = new ElementWrapper(tag, attributes, result);
+    } else {
+      element = new tag(attributes, result);
     }
-  };
 
-  insertChildren(children)
-
-  return e;
-};
-
-export const render = (component, parentElement) => {
-  parentElement.appendChild(component.root);
+    return element;
+  },
 };

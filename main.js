@@ -1,4 +1,5 @@
-import { createElement, Component, render } from "./simple-react";
+import { React, Component } from "./simple-react";
+import { render } from "./simple-react-dom";
 
 class MyComponent extends Component {
   render() {

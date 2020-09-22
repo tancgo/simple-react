@@ -1,1 +1,1 @@
-# simple-react
+## @babel/plugin-transform-react-jsx 用于jsx的解析
