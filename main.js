@@ -1,22 +1,15 @@
-import { React, Component } from "./simple-react";
-import { render } from "./simple-react-dom";
+import React from "./simple-react";
+import ReactDOM from "./simple-react-dom";
 
-class MyComponent extends Component {
-  render() {
-    return (
-      <div>
-        <h1>my component</h1>
-        {this.children}
-      </div>
-    );
-  }
+function tick() {
+  const element = (
+    <div>
+      <h1 style="color: green">Hello, world!</h1>
+      <h2>2020</h2>
+      <h2>It is {new Date().toLocaleTimeString()}.</h2>
+    </div>
+  );
+  ReactDOM.render(element, document.getElementById("root"));
 }
 
-render(
-  <MyComponent id="a" class="c">
-    <div>abc</div>
-    <div>def</div>
-    <div>kkk</div>
-  </MyComponent>,
-  document.body
-);
+setInterval(tick, 1000);
